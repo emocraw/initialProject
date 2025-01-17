@@ -105,7 +105,7 @@ async function check(rowId) {
             jsonData["Base64Image"] = "";
             
             // Check if the row is already in the array before adding it
-            if (!rowArrayChecked.some(row => row["id"] === rowId)) {
+            if (!rowArrayChecked.some(row => row["Id"] === rowId)) {
                 rowArrayChecked.push(jsonData); // Add row data to array
             }
         } else {
@@ -118,7 +118,7 @@ async function check(rowId) {
         image.prop('disabled', true);
 
         // Find the index of the row with the given rowId
-        let rowIndex = rowArrayChecked.findIndex(row => row["id"] === rowId); 
+        let rowIndex = rowArrayChecked.findIndex(row => row["Id"] === rowId); 
         if (rowIndex !== -1) {
             // Remove the row from the array
             rowArrayChecked.splice(rowIndex, 1); 
@@ -159,11 +159,11 @@ async function updateData() {
     $("#btnSubmit").prop('disabled', true);
     $('.overlay').show();
     for (let element of rowArrayChecked) {
-        let location = $(`#location${element.id}`).val();
-        let imageFileElement = $(`#image${element.id}`)[0];
+        let location = $(`#location${element.Id}`).val(); // Ensure this gets the correct value
+        let imageFileElement = $(`#image${element.Id}`)[0];
         let imageFile = imageFileElement ? imageFileElement.files[0] : null;
         let base64Image = "";
-        
+
         // ถ้ามีไฟล์ให้แปลงเป็น Base64
         base64Image = imageFile ? await toBase64(imageFile) : "";
 
@@ -181,41 +181,43 @@ async function updateData() {
             return;
         }
 
-        element.Location = location;
-        element.base64Image = base64Image;
+        element.Location = location; // Save the location
+        element.Base64Image = base64Image;
     }
-    console.log(rowArrayChecked);
+
+    console.log(rowArrayChecked); // Log updated data to check
     $('.overlay').hide();
 
 
     // ส่งข้อมูลไปที่เซิร์ฟเวอร์
-    // if (rowArrayChecked.length > 0) {
-    //     const url = '../model/updateSellRequest.php';
-    //     const headers = new Headers();
-    //     headers.append('Content-Type', 'application/json');
-    //     const requestOptions = {
-    //         method: 'POST',
-    //         headers: headers,
-    //         body: JSON.stringify(rowArrayChecked)
-    //     };
+    if (rowArrayChecked.length > 0) {
+        const url = '../model/updateSellRequest.php';
+        const headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        const requestOptions = {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(rowArrayChecked)
+        };
 
-    //     try {
-    //         const response = await fetch(url, requestOptions);
-    //         const data = await response.json();
-    //         if (response.ok) {
-    //             alert("อัพเดตสำเร็จ");
-    //             window.location.reload();
-    //             $('#submitModal').modal('hide');
-    //         } else {
-    //             alert("Error: " + data.message);
-    //         }
-    //     } catch (error) {
-    //         alert("Error: " + error.message);
-    //     } finally {
-    //         $("#btnSubmit").prop('disabled', false);
-    //         $('.overlay').hide();
-    //     }
-    // }
+        try {
+            const response = await fetch(url, requestOptions);
+            const data = await response.json();
+            if (response.ok) {
+                alert("อัพเดตสำเร็จ");
+                window.location.reload();
+                $('#submitModal').modal('hide');
+                window.location.reload();
+            } else {
+                alert("Error: " + data.message);
+            }
+        } catch (error) {
+            alert("Error: " + error.message);
+        } finally {
+            $("#btnSubmit").prop('disabled', false);
+            $('.overlay').hide();
+        }
+    }
 }
 
 // Add an event listener to the update button
