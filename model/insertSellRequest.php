@@ -4,6 +4,7 @@ require "head.php";
 if ($requestMethod == "POST") {
 
     if (!empty($Post)) {
+        $isDocInserted = false;
         $iserror = false;
         foreach ($Post as $key => $value) {
             $scrapcode = $value['Code'];
@@ -15,11 +16,15 @@ if ($requestMethod == "POST") {
             $location = $value['location'];
             $img = $value['image'];
             $imgData = base64_decode($img);
-            $ramdomName = uniqid();
-            $imgPath = '../assets/scrapImg/' . $ramdomName . '.png';
-            $imgName = $ramdomName . '.png';
+            $randomName = uniqid();
+            $imgPath = '../assets/scrapImg/' . $randomName . '.png';
+            $imgName = $randomName . '.png';
             $doc_id = $value['docNo'];
             file_put_contents($imgPath, $imgData);
+            if (!$isDocInserted) {
+                $isDocInserted = true;
+                insertDoc($doc_id);
+            }
 
             if (!insertScapList($scrapcode, $name, $qty, $unit, $price, $vendor, $doc_id, $imgName, $location)) {
                 $iserror = true;
@@ -39,32 +44,32 @@ if ($requestMethod == "POST") {
 function insertScapList($scrapcode, $name, $qty, $unit, $price, $vendor, $doc_id,  $imgName, $location)
 {
     global $conn2;
-    if (insertDoc($doc_id)) {
-        // Define the SQL query
-        $sql = "INSERT INTO [Scrap_management].[dbo].[sell_request_item] ([scarp_code]
+
+    // Define the SQL query
+    $sql = "INSERT INTO [Scrap_management].[dbo].[sell_request_item] ([scarp_code]
     ,[scrap_name]
     ,[sell_qty]
     ,[unit]
     ,[price]
     ,[vendor_name]
     ,[create_date],doc_id,image_name,[location]) VALUES (?,?,?,?,?,?,GETDATE(),? ,?, ?)";
-        // Define the parameters for the query
-        $params = [$scrapcode, $name, $qty, $unit, $price, $vendor, $doc_id, $imgName, $location];
-        // Execute the query
-        $stmt = sqlsrv_query($conn2, $sql, $params);
-        if ($stmt === false) {
-            // Handle errors
-            $errors = sqlsrv_errors();
-            echo json_encode(array("message" => "Insert error", "errors" => $errors, "sql" => $sql, "params" => $params));
-            return false;
-        }
-        // Check the number of affected rows
-        $rows_affected = sqlsrv_rows_affected($stmt);
-        if ($rows_affected > 0) {
-            return true; // Insert was successful
-        }
-        return false; // Insert failed
+    // Define the parameters for the query
+    $params = [$scrapcode, $name, $qty, $unit, $price, $vendor, $doc_id, $imgName, $location];
+    // Execute the query
+    $stmt = sqlsrv_query($conn2, $sql, $params);
+    if ($stmt === false) {
+        // Handle errors
+        $errors = sqlsrv_errors();
+        echo json_encode(array("message" => "Insert error", "errors" => $errors, "sql" => $sql, "params" => $params));
+        return false;
     }
+    // Check the number of affected rows
+    $rows_affected = sqlsrv_rows_affected($stmt);
+    if ($rows_affected > 0) {
+        return true; // Insert was successful
+    }
+    return false; // Insert failed
+
 }
 function insertDoc($new_doc)
 {
