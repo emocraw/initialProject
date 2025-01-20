@@ -7,20 +7,33 @@ if ($requestMethod == "POST") {
         $iserror = false;
         foreach ($Post as $key => $value) {
             $Id = $value['Id'];
-            $Image = $value['Image'];
+            $Image = $value['Image'];      // ชื่อภาพที่รับจากคำขอ
             $Location = $value['Location'];
             $Base64Image = $value['Base64Image'];
-            $imgData = base64_decode($Base64Image);
-            $ramdomName = uniqid();
-            $imgPath = '../assets/scrapImg/' . $ramdomName . '.png';
-            $imgName = $ramdomName . '.png';
-            file_put_contents($imgPath, $imgData);
+            
+            $directory = '../assets/scrapImg/';
+            $existingImages = array_map('basename', scandir($directory));  // ดึงรายชื่อไฟล์ในโฟลเดอร์
+            $imageExists = false;
+            $imgName = $Image;  // ใช้ชื่อที่ได้รับจากคำขอเริ่มต้น
 
-            if (!updateitem($Id, $Image, $Location, $imgName)) {
+            // ตรวจสอบว่าไฟล์ที่มีชื่อเดียวกันมีอยู่แล้วในโฟลเดอร์หรือไม่
+            if (in_array($Image, $existingImages)) {
+                $imageExists = true;  // ถ้ามีไฟล์ชื่อเดียวกันแล้ว
+            } else {
+                // ถ้าไม่มีไฟล์ชื่อเดียวกัน
+                $imgData = base64_decode($Base64Image);  // แปลง Base64 เป็นข้อมูลภาพ
+                $ramdomName = uniqid();                   // สร้างชื่อไฟล์แบบสุ่ม
+                $imgPath = $directory . $ramdomName . '.png';  // เส้นทางไฟล์ใหม่
+                $imgName = $ramdomName . '.png';          // ชื่อไฟล์ที่สร้างใหม่
+                file_put_contents($imgPath, $imgData);   // สร้างไฟล์ใหม่
+            }
+            // Update the item with the new or existing image name
+            if (!updateitem($Id, $Location, $imgName)) {
                 $iserror = true;
                 return;
             }
         }
+
         if (!$iserror) {
             http_response_code(201);
             echo json_encode(array("message" => "Insert data success"));
@@ -31,18 +44,18 @@ if ($requestMethod == "POST") {
     }
 }
 
-function updateitem()
+
+function updateitem($Id, $Location, $imgName)
 {
     global $conn2;
-    $sql = "INSERT INTO [Scrap_management].[dbo].[sell_request_item] ([scarp_code]
-    ,[scrap_name]
-    ,[sell_qty]
-    ,[unit]
-    ,[price]
-    ,[vendor_name]
-    ,[create_date],doc_id,image_name,[location]) VALUES (?,?,?,?,?,?,GETDATE(),? ,?, ?)";
+    $sql = "UPDATE [Scrap_management].[dbo].[sell_request_item]
+            SET
+                [image_name] = ?,   -- ชื่อไฟล์ภาพใหม่ (สามารถเป็นชื่อที่ได้รับจากคำขอหรือชื่อที่สร้างใหม่)
+                [location] = ?      -- สถานที่ (ข้อมูลที่ได้รับจากคำขอ)
+            WHERE [id] = ?
+            ";
         // Define the parameters for the query
-    $params = [$scrapcode, $name, $qty, $unit, $price, $vendor, $doc_id, $imgName, $location];
+    $params = [$imgName, $Location, $Id];
         // Execute the query
     $stmt = sqlsrv_query($conn2, $sql, $params);
     if ($stmt === false) {
@@ -57,22 +70,4 @@ function updateitem()
         return true; // Insert was successful
     }
     return false; // Insert failed
-}
-
-function getimagename()
-{
-    global $conn2;
-    $data = [];
-    $sql = "SELECT DISTINCT [image_name]
-            FROM [Scrap_management].[dbo].[sell_request_item]";
-    $result = sqlsrv_query($conn2, $sql, array(), array("Scrollable" => SQLSRV_CURSOR_KEYSET));
-    if ($result) {
-        $answer = sqlsrv_num_rows($result);
-        if ($answer) {
-            while ($show = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
-                array_push($data, $show);
-            }
-        }
-    }
-    return $data;
 }
