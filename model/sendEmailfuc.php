@@ -6,8 +6,8 @@ use PHPMailer\PHPMailer\Exception;
 require 'PHPMailer/Exception.php';
 require 'PHPMailer/PHPMailer.php';
 require 'PHPMailer/SMTP.php';
-$urlReceiver = "http://localhost/worker_allocate/view/receiveEmpSpecial.php?machine=";
-$urlSender = "http://localhost/worker_allocate/view/empManagement.php";
+$urlReceiver = "http://shopfloor.shera.com/worker_allocate/view/receiveEmpSpecial.php?machine=";
+$urlSender = "http://shopfloor.shera.com/worker_allocate/view/empManagement.php";
 function sendMail($departsend, $departReci, $dateStart, $shift, $supMail, $supName)
 {
     global $urlReceiver;
