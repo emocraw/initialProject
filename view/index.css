@@ -11,3 +11,19 @@ body {
     font-variation-settings:
         "wdth" 100;
 }
+
+.nav-link.active {
+    background-color: #198754 !important;
+    border-radius: 5px;
+    /* เขียว Bootstrap */
+    color: white !important;
+}
+
+.form-control::placeholder {
+    color: #2fad3c;
+    /* เปลี่ยนเป็นสีที่คุณต้องการ */
+}
+
+.form-select {
+    color: #2fad3c;
+}

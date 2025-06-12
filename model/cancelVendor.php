@@ -1,3 +1,5 @@
+
+
 <?php
 include_once('config.php');
 include_once('action.php');
@@ -6,11 +8,14 @@ $requestMethod = $_SERVER["REQUEST_METHOD"];
 $data = file_get_contents("php://input");
 //แปลงข้อมูลที่อ่านได้ เป็น array แล้วเก็บไว้ที่ตัวแปร result
 $Post = json_decode($data, true);
-
-if ($requestMethod == "GET") {
-    echo json_encode(get_request_worker_info());
-}
 if ($requestMethod == "POST") {
-}
-if ($requestMethod == "PUT") {
+    if (empty($Post['rowId'])) {
+        echo json_encode(['message' => 'Data is empty']);
+        http_response_code(400);
+        return;
+    }
+    UpdateCancelVendor($Post['rowId']);
+    echo json_encode(['message' => 'Cancel vendor successful']);
+    http_response_code(200); // HTTP OK
+    return;
 }

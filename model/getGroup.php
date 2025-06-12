@@ -8,7 +8,15 @@ $data = file_get_contents("php://input");
 $Post = json_decode($data, true);
 
 if ($requestMethod == "GET") {
-    echo json_encode(get_request_worker_info());
+    $getGroupMc = getGroupMc();
+    if (empty($getGroupMc)) {
+        http_response_code(400);
+        echo json_encode(['message' => 'ไม่พบข้อมูล']);
+        return;
+    }
+    http_response_code(200);
+    echo json_encode($getGroupMc);
+    return;
 }
 if ($requestMethod == "POST") {
 }

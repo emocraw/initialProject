@@ -11,14 +11,14 @@ $connectionInfo = [
 
 $serverName2 = '10.61.30.85'; // serverName\\instanceName, portNumber (default is 1433) Sample localhost\\sqlexpress, 1542
 $connectionInfo2 = [
-    'Database' => 'rawmatconsum',
+    'Database' => 'working_allocate_outsource',
     'UID' => 'sa',
     'PWD' => 'P@ssw0rd',
     'CharacterSet' => 'UTF-8',
 ];
 
-$conn = sqlsrv_connect($serverName, $connectionInfo);
-$conn2 = sqlsrv_connect($serverName2, $connectionInfo2);
+$conn99 = sqlsrv_connect($serverName, $connectionInfo);
+$conn85 = sqlsrv_connect($serverName2, $connectionInfo2);
 date_default_timezone_set("Asia/Bangkok");
 
 //กำหนดค่า Access-Control-Allow-Origin ให้ เครื่อง อื่น ๆ สามารถเรียกใช้งานหน้านี้ได้
@@ -37,10 +37,3 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 //     $usernameApi = $_SERVER['PHP_AUTH_USER']; // username
 //     $passwordApi = $_SERVER['PHP_AUTH_PW']; // password
 // }
-
-$requestMethod = $_SERVER["REQUEST_METHOD"];
-//อ่านข้อมูลที่ส่งมาแล้วเก็บไว้ที่ตัวแปร data
-$data = file_get_contents("php://input");
-
-//แปลงข้อมูลที่อ่านได้ เป็น array แล้วเก็บไว้ที่ตัวแปร result
-$Post = json_decode($data, true);

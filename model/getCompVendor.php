@@ -8,7 +8,7 @@ $data = file_get_contents("php://input");
 $Post = json_decode($data, true);
 
 if ($requestMethod == "GET") {
-    echo json_encode(get_request_worker_info());
+    echo json_encode(getCompVendor());
 }
 if ($requestMethod == "POST") {
 }

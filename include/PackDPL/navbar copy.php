@@ -17,9 +17,6 @@
                     <li class="nav-item requester">
                         <a id='empManagement' class="nav-link" href="empManagement.php">จัดการพนักงาน</a>
                     </li>
-                    <li class="nav-item requester">
-                        <a id='receiveEmpSpecial' class="nav-link" href="receiveEmpSpecial.php">รับพนักงานจากแผนกอื่น</a>
-                    </li>
                     <!-- <li class="nav-item requester">
                         <a id='createWorking' class="nav-link" href="http://localhost/working_allocate/createWorking.php">ส่งพนักงานไปทำงาน</a>
                     </li> -->

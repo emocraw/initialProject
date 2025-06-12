@@ -2,7 +2,7 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
         <div class="container-fluid px-3">
             <a class="navbar-brand" href="#">
-                <img src="../assets/SHERA_Shopfloor.png" alt="Logo" width="160vh" height="auto" class="d-inline-block align-text-top">
+                <img src="../../assets/SHERA_Shopfloor.png" alt="Logo" width="160vh" height="auto" class="d-inline-block align-text-top">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -16,9 +16,6 @@
                     </li>
                     <li class="nav-item requester">
                         <a id='empManagement' class="nav-link" href="empManagement.php">จัดการพนักงาน</a>
-                    </li>
-                    <li class="nav-item requester">
-                        <a id='receiveEmpSpecial' class="nav-link" href="receiveEmpSpecial.php">รับพนักงานจากแผนกอื่น</a>
                     </li>
                     <!-- <li class="nav-item requester">
                         <a id='createWorking' class="nav-link" href="http://localhost/working_allocate/createWorking.php">ส่งพนักงานไปทำงาน</a>

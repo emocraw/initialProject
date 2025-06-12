@@ -37,9 +37,12 @@
             <div class="col-12">
                 <h4 class="text-center text-primary" for="">รายการของที่จะขออนุมัติขาย</h4>
             </div>
-            <div class="col-12">
-                <h5 class="text-secondary">Doc NO:<span id="docNo"></span></h5>
+            <div id="listDoc">
+                <div class="col-12">
+                    <h5 class="text-secondary">Doc:<span id="docNo"></span><span class="text-warning">รออนุมัติ</span></h5>
+                </div>
             </div>
+
         </div>
         <!-- <div class="row mt-3 px-2 py-2">
             <table class="table border border-2">

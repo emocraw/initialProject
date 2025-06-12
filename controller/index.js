@@ -3,182 +3,333 @@ let scrap_data = [];
 let bodyScrap;
 let columnTable;
 let jsonData = {};
+let mcname = "";
 const rowArrayChecked = [];
 async function app() {
-    getDoc();
-    scrap_data = await getScrapt();
-    setTable();
+    $('.vendor-select').select2();
+    await setMatchine();
+    await changeMachine();
+    $('.overlay').hide();
+    // getDoc();
+    // scrap_data = await getScrapt();
+    // setTable();
 }
-async function toBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
+
+$('#mcname').on('change', changeMachine)
+async function changeMachine() {
+    mcname = $('#mcname').val();
+    let workType = await getWorkType();
+    await getReport();
+    $("#bodyScrap").empty(); // ล้างข้อมูลใน tbody
+    console.log(workType);
+    if (!workType || workType.length == 0) {
+        alert("ไม่พบข้อมูลทักษะงาน หรือ การจ้างงานในเครื่องจักรนี้");
+        $('.overlay').hide();
+        return;
+    }
+    addRow(workType);
+    $('.overlay').hide();
+}
+$("#addBtn").on("click", addRow);
+
+
+
+function addRow(workType) {
+    // สร้างแถวใหม่
+    var newRow = `
+        <tr>
+            <td class="text-center justify-content-center">1</td>
+            <td>
+                <select class="form-select" aria-label="Default select example">
+                    <option selected>เลือกทักษะของพนักงาน</option>
+                    `;
+    workType.forEach(work => {
+        newRow += `<option value="${work.work_name}">${work.work_name}</option>`;
+    });
+    newRow += `</select>
+            </td>
+            <td>
+                <input type="text" class="form-control" placeholder="ระบุตัวเลขจำนวนคน" 
+                    aria-label="Recipient's username" aria-describedby="button-addon2">
+            </td>
+            <td>
+             <div class="row">
+                <div class="col-6">
+                    <input type="date" class="form-control" aria-describedby="button-addon2">
+                </div>
+                <div class="col-6">
+                <select id='start_time' class="form-select time" aria-label="Default select example">
+                    <option value="00:00">00:00</option>
+                    <option value="08:00">08:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="20:00">20:00</option>
+                </select>
+                </div>
+            </div>              
+            </td>
+            <td>
+            <div class="row">
+               <div class="col-6">
+                    <input type="date" class="form-control" aria-describedby="button-addon2">
+                </div>
+                <div class="col-6">
+                <select class="form-select time" aria-label="Default select example">
+                    <option value="00:00">00:00</option>
+                    <option value="08:00">08:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="20:00">20:00</option>
+                </select>
+                </div>
+                </div>  
+            </td>
+            <td>
+                <button class="btn btn-danger btnDelete">ลบ</button>
+            </td>
+        </tr>
+        `;
+
+    // เพิ่มแถวใหม่ลงใน tbody
+    $("#bodyScrap").append(newRow);
+    // updateSelect();
+    // อัพเดตหมายเลขลำดับใหม่
+    updateRowNumbers();
+}
+function updateSelect() {
+    $('#bodyReport tr').each(function () {
+        const $select = $(this).find('select');
+        if ($select.length) {
+            $select.empty(); // ล้าง option เดิม
+            workType.forEach(opt => {
+                $select.append($('<option>', {
+                    value: opt.work_type,
+                    text: opt.work_type
+                }));
+            });
+        }
     });
 }
-$("#btnSubmit").click(async function () {
-    $("#btnSubmit").prop('disabled', true);
-    $('.overlay').show();
-    for (let element of rowArrayChecked) {
-        let location = $(`#location${element.Code}`).val();
-        let imageFileElement = $(`#image${element.Code}`)[0];
-        console.log(element.Code);
-        let imageFile = imageFileElement ? imageFileElement.files[0] : null;
-        let base64Image = "";
-        if (!imageFile) {
-            alert("ไม่มีไฟล์รูปภาพ");
-            $("#btnSubmit").prop('disabled', false);
-            $('#submitModal').modal('hide');
-            $(`#image${element.Code}`).css('border', '2px solid red');
-            $('.overlay').hide();
-            return;
-        }
-        base64Image = imageFile ? await toBase64(imageFile) : "";
-        if (location === "") {
-            alert("กรุณาระบุสถาณที่");
-            $("#btnSubmit").prop('disabled', false);
-            $('#submitModal').modal('hide');
-            $(`#image${element.Code}`).css('border', '2px solid red');
-            $('.overlay').hide();
-            return;
-        }
-        element.location = location;
-        element.image = base64Image;
-        element.docNo = $('#docNo').text();
-    }
-    console.log(rowArrayChecked);
-    if (rowArrayChecked.length > 0) {
-        const url = '../model/insertSellRequest.php';
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        const requestOptions = {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(rowArrayChecked)
-        };
-        console.log(JSON.stringify(rowArrayChecked));
-        try {
-            // Disable the button to prevent double-clicking
-            const response = await fetch(url, requestOptions);
-            const data = await response.json();
-            // Process the received data
-            if (response.ok) {
-                alert("บันทึกสำเร็จ");
-                window.location.reload();
-                $('#submitModal').modal('hide');
-            } else {
-                alert("Error: " + data.message);
-            }
-        } catch (error) {
-            // Handle any errors
-            alert("Error: " + error.message);
-        } finally {
-            // Re-enable the button
-            $("#btnSubmit").prop('disabled', false);
-            $('.overlay').hide();
-        }
-    }
-});
-async function getScrapt() {
-    const url = '../model/get_scrap.php';
+async function getWorkType() {
+    const url = '../model/getJobsByGroup.php';
+    const headers = new Headers();
+    const workGroup = $('#mcname').val();
+    headers.append('Content-Type', 'application/json');
     const requestOptions = {
-        method: 'GET',
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ workGroup })
     };
+
+    console.log(JSON.stringify({ workGroup }));
+
     try {
         const response = await fetch(url, requestOptions);
+        const status = response.status;
         const data = await response.json();
         console.log(data);
-        // Process the received data
+        if (status === 200) {
+            return data;
+        } else {
+            return []; // กรณี status ไม่ใช่ 200
+        }
+    } catch (error) {
+        console.log('Error:', error);
+        return []; // 🔄 ย้ายมาไว้ที่นี่
+    } finally {
+        $('.overlay').hide(); // ✅ ใช้แค่เพื่อแสดง/ซ่อน loading ไม่ควร return ที่นี่
+    }
+}
+
+$('#btnSubmit').on('click', async function () {
+    $('.overlay').show();
+    var dataArray = [];
+    var rows = $("#bodyScrap tr").toArray(); // แปลง NodeList เป็น Array
+    // ใช้ for...of ในการวนลูปแต่ละแถว
+
+    for (let row of rows) {
+        var $row = $(row);
+        // ดึงข้อมูลจากแต่ละช่อง
+        var skill = $row.find("select option:selected").eq(0).val();
+        var peopleCount = $row.find("input[type='text']").eq(0).val();
+        var startDate = $row.find("input[type='date']").eq(0).val();
+        var endDate = $row.find("input[type='date']").eq(1).val();
+        let startTime = $row.find("select option:selected").eq(1).val()
+        let endTime = $row.find("select option:selected").eq(2).val()
+        console.log(skill);
+        console.log(peopleCount);
+        console.log(startDate);
+        console.log(endDate);
+        console.log(startTime);
+        console.log(endTime);
+        if (!skill || !peopleCount || !startDate || !endDate || !mcname || !startTime || !endTime) {
+            alert("กรุณากรอกข้อมูลให้ครบ");
+            $('#submitModal').modal('hide');
+            $('.overlay').hide();
+            return;
+        }
+
+        // ตรวจสอบว่า startDate มากกว่า endDate หรือไม่
+        if (startDate + " " + startTime && endDate + " " + endTime && new Date(startDate + " " + startTime) > new Date(endDate + " " + endTime)) {
+            alert("วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด");
+            $('#submitModal').modal('hide');
+            $('.overlay').hide();
+            return;
+        }
+        // สร้าง Object และเก็บลง Array
+        var rowData = {
+            skill: skill,
+            peopleCount: peopleCount,
+            startDate: `${startDate} ${startTime}`,
+            endDate: `${endDate} ${endTime}`,
+            machine: mcname
+        };
+        dataArray.push(rowData);
+    }
+    console.log(dataArray);
+    $('#btnSubmit').hide();
+    const url = '../model/insertRequestWorker.php';
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    const requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(dataArray)
+    };
+    console.log(JSON.stringify(dataArray));
+    try {
+        const response = await fetch(url, requestOptions);
+        const status = response.status;
+        const data = await response.json();
+        console.log(data);
+        if (status == 200) {
+            location.reload();
+        }
+        alert(data.message);
+        $('#submitModal').modal('hide');
+        $('#btnSubmit').show();
         $('.overlay').hide();
-        return data;
     } catch (error) {
         // Handle any errors
         console.log('Error:', error);
+        $('#submitModal').modal('hide');
+        $('#btnSubmit').show();
         $('.overlay').hide();
     }
-    return;
-}
-async function setTable() {
-    bodyScrap = $('#bodyScrap');
-    columnTable = $('thead');
+});
+async function setMatchine() {
+    let selectOptionMc = $('#mcname');
+    selectOptionMc.empty();
+    let machines = JSON.parse(localStorage.getItem('machine'));
+    console.log(machines);
     let text = "";
-    bodyScrap.empty();
-    scrap_data.forEach(scrap => {
-        text += `
-        <tr>
-            <td>${scrap.Id}</td>
-            <td>${scrap.Description}</td>
-            <td>${scrap.Sell_qty}</td>
-            <td>${scrap.unit}</td>
-            <td>${scrap.Price_unit}</td>
-            <td>${scrap.Vendor}</td>
-            <td><input class="form-check-input" type="checkbox" onclick='check(${scrap.Id})' id="checkbox${scrap.Id}"></td>
-            <td><input style="width: 100px; display:none" id='location${scrap.Id}' type='text' placeholder="ระบุสถาณที่" class="form-control"></input></id>
-            <td><input style="display:none" id='image${scrap.Id}' type="file" id="upload${scrap.Id}" accept="image/*"></td>
-        </tr>
-      `;
-    });
-    bodyScrap.append(text);
-}
-function findRowByFirstColumn(value) {
-    let foundRow = null;
-    // Iterate through all rows in the table body
-    $('table tbody tr').each(function () {
-        // Check the content of the first column (assumed to be <th>)
-        let firstColumnText = $(this).find('td').eq(0).text().trim();
-        if (firstColumnText === value.toString()) {
-            foundRow = $(this); // Store the row if it matches
-            return false; // Exit the loop
+    machines.forEach(element => {
+        switch (element) {
+            case "MTN":
+                text += `<option value="MTN1">MTN1</option>
+                <option value="MTN2">MTN2</option>
+                <option value="MNT3">MNT3</option>`;
+                break;
+            default:
+                text += `<option value="${element}">${element}</option>`;
+                break;
         }
     });
+    selectOptionMc.append(text);
+}
+// ลบแถวเมื่อกดปุ่มลบ
+$(document).on("click", ".btnDelete", function () {
+    $(this).closest("tr").remove();
+    updateRowNumbers();
+});
 
-    return foundRow; // Return the matched row or null if not found
+// ฟังก์ชันอัพเดตหมายเลขลำดับ
+function updateRowNumbers() {
+    $("#bodyScrap tr").each(function (index) {
+        $(this).find("td:first").text(index + 1);
+    });
 }
-function check(rowId) {
-    // Usage example
-    let valueCheck = $(`#checkbox${rowId}`);
-    const locationInput = $(`#location${rowId}`);
-    const image = $(`#image${rowId}`);
-    console.log(valueCheck);
-    if (valueCheck.prop('checked')) {
-        locationInput.show();
-        image.show();
-        let row = findRowByFirstColumn(rowId);
-        if (row) {
-            jsonData = {};
-            row.find('td').each(function (index) {
-                let columnName = columnTable.find('th').eq(index).text().trim();
-                jsonData[columnName] = $(this).text().trim();
-            });
-            rowArrayChecked.push(jsonData);
-        } else {
-            console.log("Row not found");
-        }
-        console.log(rowArrayChecked);
-    } else {
-        locationInput.hide();
-        image.hide();
-        let rowIndex = rowArrayChecked.findIndex(row => row.รหัส == rowId);
-        if (rowIndex !== -1) {
-            rowArrayChecked.splice(rowIndex, 1);
-        }
-    }
-}
-async function getDoc() {
+
+async function getReport() {
     const url = '../model/getdoc.php';
     const requestOptions = {
         method: 'GET',
     };
+    $('.overlay').show();
     try {
         const response = await fetch(url, requestOptions);
         const data = await response.json();
-        // Process the received data
-        $('#docNo').text(data);
+        let bodyTable = $('#bodyReport');
+        let text = '';
+        bodyTable.empty();
         console.log(data);
+        if (data.length > 0) {
+            let row = 0;
+            data.forEach((element) => {
+                let assigned = element.worker_received ? element.worker_received : 0;
+                if (element.request_worker_doc_status == 'open' && element.work_location == mcname) {
+                    row++;
+                    text += `<tr>
+                    <td class="text-center justify-content-center" white-space: nowrap;>${row}</td>
+                        <td white-space: nowrap;>${element.request_worker_doc}</td>
+                        <td white-space: nowrap;>${element.work_type}</td>
+                        <td white-space: nowrap;>${element.worker_require}</td>
+                        <td white-space: nowrap;>${element.work_startDate.date}</td>
+                        <td white-space: nowrap;>${element.work_endDate.date}</td>`;
+                    if (assigned > 0) {
+                        text += `<td class='text-success' white-space: nowrap;>Vedor Assigned</td>`;
+                    } else {
+                        text += `<td white-space: nowrap;><button onclick="deleteDetail('${element.id}','${element.request_worker_doc}','${element.worker_require}');" class="btn btn-danger m-1 btnDeleteInfo">ลบ</button></td> `;
+                    }
+                    text += `</tr > `;
+                }
+            });
+            if (row == 0) {
+                text = `< tr >
+                        <td colspan="7">ไม่มีข้อมูล</td>
+            </ > `
+            }
+            bodyTable.append(text);
+            return;
+        }
+        text = `< tr >
+                        <td colspan="7">ไม่มีข้อมูล</td>
+        </ > `
+        bodyTable.append(text);
     } catch (error) {
         // Handle any errors
         console.log('Error:', error);
     }
+    $('.overlay').hide();
+}
 
+async function deleteDetail(id, doc, qty) {
+    const url = '../model/deleteDetail.php';
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    const requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+            id,
+            doc,
+            qty
+        })
+    };
+    console.log(JSON.stringify({
+        id,
+        doc,
+        qty
+    }));
+    try {
+        const response = await fetch(url, requestOptions);
+        const status = response.status;
+        const data = await response.json();
+        console.log(data);
+        if (status == 200) {
+            location.reload();
+        }
+        alert(data.message);
+    } catch (error) {
+        // Handle any errors
+        console.log('Error:', error);
+    }
 }

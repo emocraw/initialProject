@@ -8,9 +8,18 @@ $data = file_get_contents("php://input");
 $Post = json_decode($data, true);
 
 if ($requestMethod == "GET") {
-    echo json_encode(get_request_worker_info());
 }
 if ($requestMethod == "POST") {
+    $checkUser = checkUser($Post['user'], $Post['type'], $Post['token']);
+    if (empty($checkUser)) {
+        http_response_code('401');
+        echo json_encode(['message' => "Unauthorized"]);
+        return;
+    }
+
+    http_response_code('200');
+    echo json_encode(['message' => 'ok']);
+    return;
 }
 if ($requestMethod == "PUT") {
 }

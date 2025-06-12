@@ -1,8 +1,11 @@
 $('document').ready(app);
 let allDoc = [];
 async function app() {
-    let allDoc = await getAllDoc(); // ดึงข้อมูลเอกสารทั้งหมดจากฐานข้อมูล
-    await setTable(allDoc); // กำหนดข้อมูลในตาราง
+    allDoc = await getAllDoc(); // ดึงข้อมูลเอกสารทั้งหมดจากฐานข้อมูล
+    if (allDoc) {
+        ShowDoc();
+    }
+    // await setTable(allDoc); // กำหนดข้อมูลในตาราง
     $('.overlay').hide(); // ซ่อน overlay
 }
 
@@ -23,7 +26,16 @@ async function getAllDoc() {
     }
     return [];
 }
-
+async function ShowDoc() {
+    let listDoc = $('#listDoc');
+    let html = "";
+    listDoc.empty();
+    html += `<div class="col-12">
+                <h5 class="text-secondary">Doc:<span id="docNo${allDoc[0].doc_id}">${allDoc[0].doc_id}</span><span class="text-warning">รออนุมัติ</span></h5>
+            </div>`;
+    console.log(allDoc);
+    listDoc.append(html);
+}
 async function setTable(allDoc) {
     bodyDoc = $('#bodyAlldoc');
     columnTable = $('thead'); // this can be used to reference the headers but adjust within each row context

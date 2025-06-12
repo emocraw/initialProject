@@ -8,9 +8,23 @@ $data = file_get_contents("php://input");
 $Post = json_decode($data, true);
 
 if ($requestMethod == "GET") {
-    echo json_encode(get_request_worker_info());
 }
 if ($requestMethod == "POST") {
+
+    if (empty($Post['vendorCode'])) {
+        http_response_code('400');
+        echo json_encode(["message" => "ไม่พบรหัส Vendor ในระบบ"]);
+        return;
+    }
+    $findVendorCode = findVendor($Post['vendorCode']);
+    if (empty($findVendorCode)) {
+        http_response_code('400');
+        echo json_encode(["message" => "ไม่พบรหัส Vendor ในระบบ"]);
+        return;
+    }
+    http_response_code(200);
+    echo json_encode($findVendorCode[0]);
+    return;
 }
 if ($requestMethod == "PUT") {
 }

@@ -8,7 +8,12 @@ $data = file_get_contents("php://input");
 $Post = json_decode($data, true);
 
 if ($requestMethod == "GET") {
-    echo json_encode(get_request_worker_info());
+    if (empty($_GET['vendor'])) {
+        http_response_code(400);
+        echo json_encode(['message' => 'ข้อมูลผิดพลาด']);
+    }
+    http_response_code(200);
+    echo json_encode(getDocByVendor($_GET['vendor']));
 }
 if ($requestMethod == "POST") {
 }

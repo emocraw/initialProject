@@ -8,9 +8,22 @@ $data = file_get_contents("php://input");
 $Post = json_decode($data, true);
 
 if ($requestMethod == "GET") {
-    echo json_encode(get_request_worker_info());
 }
 if ($requestMethod == "POST") {
+    if (empty($Post['company'])) {
+        http_response_code('400');
+        echo json_encode(["message" => "ข้อมูลไม่ครบถ้วน"]);
+        return;
+    }
+    $getCheckInData = getWaitApproce($Post['company']);
+    if (empty($getCheckInData)) {
+        http_response_code('400');
+        echo json_encode(["message" => "ไม่พบข้อมูลการทำงาน"]);
+        return;
+    }
+    http_response_code(200);
+    echo json_encode($getCheckInData);
+    return;
 }
 if ($requestMethod == "PUT") {
 }
