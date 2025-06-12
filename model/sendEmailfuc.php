@@ -27,8 +27,8 @@ function sendMail($departsend, $departReci, $dateStart, $shift, $supMail, $supNa
         //$mail->addReplyTo('addReplyToEmail@gmail.com', 'ReplyName');
         // Add a recipient
         // ผู้รับ
-        // $mail->addAddress($supMail);
-        $mail->addAddress('Thanakorn_m@shera.com');
+        $mail->addAddress($supMail);
+        // $mail->addAddress('Thanakorn_m@shera.com');
         // $mail->addCC('thanakorn_m@shera.com');
         $mail->addCC('Thanakorn_m@shera.com');
         // CC
