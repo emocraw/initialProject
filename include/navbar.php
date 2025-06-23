@@ -12,33 +12,12 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <!-- Roll Requester -->
                     <li class="nav-item requester">
-                        <a id='index' class="nav-link" href="index.php">ใบแจ้งขอพนักงาน</a>
+                        <a id='dashboard' class="nav-link" href="dashboard.php">Dashboard</a>
                     </li>
                     <li class="nav-item requester">
-                        <a id='empManagement' class="nav-link" href="empManagement.php">จัดการพนักงาน</a>
-                    </li>
-                    <li class="nav-item requester">
-                        <a id='receiveEmpSpecial' class="nav-link" href="receiveEmpSpecial.php">รับพนักงานจากแผนกอื่น</a>
-                    </li>
-                    <!-- <li class="nav-item requester">
-                        <a id='createWorking' class="nav-link" href="http://localhost/working_allocate/createWorking.php">ส่งพนักงานไปทำงาน</a>
-                    </li> -->
-                    <li class="nav-item requester">
-                        <a id='reportCheckIn' class="nav-link" href="reportCheckIn.php">รายงานการมาทำงานของพนักงานรายวัน</a>
-                    </li>
-                    <!-- Roll VendorManagement -->
-                    <li class="nav-item safety">
-                        <a id='vendorManagement' class="nav-link" href="vendorManagement.php">จัดการผู้รับเหมา</a>
-                    </li>
-                    <li class="nav-item safety">
-                        <a id='managementReport' class="nav-link" href="managementReport.php">ประวัติการเรียกเข้า</a>
-                    </li>
-                    <!-- Roll workerManagement -->
-                    <li class="nav-item vendor">
-                        <a id='workerManagement' class="nav-link" href="workerManagement.php">จัดการพนักงาน</a>
+                        <a id='index' class="nav-link" href="index.php">Index</a>
                     </li>
                 </ul>
-
                 <!-- เมนูฝั่งขวา -->
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">

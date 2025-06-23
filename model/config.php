@@ -1,20 +1,36 @@
 <?php
 // connection
 session_start();
-$serverName = '10.61.30.99'; // serverName\\instanceName, portNumber (default is 1433) Sample localhost\\sqlexpress, 1542
+function loadEnv($file)
+{
+    $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        list($name, $value) = explode('=', $line, 2);
+        putenv(trim($name) . '=' . trim($value));
+    }
+}
+
+loadEnv('.env');
+
+$serverName = getenv('DB1_HOST');
 $connectionInfo = [
-    'Database' => "allorawmat",
-    'UID' => 'mes',
-    'PWD' => 'me$12',
-    'CharacterSet' => 'UTF-8',
+    'Database' => getenv('DB1_NAME'),
+    'UID' => getenv('DB1_USER'),
+    'PWD' => getenv('DB1_PASS'),
+    'CharacterSet' => getenv('DB1_CHARSET'),
+    "Encrypt" => 1,                     // ใช้ SSL/TLS
+    "TrustServerCertificate" => 1
 ];
 
-$serverName2 = '10.61.30.85'; // serverName\\instanceName, portNumber (default is 1433) Sample localhost\\sqlexpress, 1542
+$serverName2 = getenv('DB2_HOST');
 $connectionInfo2 = [
-    'Database' => 'working_allocate_outsource',
-    'UID' => 'sa',
-    'PWD' => 'P@ssw0rd',
-    'CharacterSet' => 'UTF-8',
+    'Database' => getenv('DB2_NAME'),
+    'UID' => getenv('DB2_USER'),
+    'PWD' => getenv('DB2_PASS'),
+    'CharacterSet' => getenv('DB2_CHARSET'),
+    "Encrypt" => 1,                     // ใช้ SSL/TLS
+    "TrustServerCertificate" => 1
 ];
 
 $conn99 = sqlsrv_connect($serverName, $connectionInfo);
